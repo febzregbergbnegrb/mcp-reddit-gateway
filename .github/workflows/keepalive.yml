@@ -1,0 +1,16 @@
+name: keepalive
+
+# Pings the Render free service so it never spins down (15 min idle = sleep).
+# Render sleeps after 15 min; we target every 10 min to absorb GitHub's
+# scheduler lateness and stay under that window.
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wake the gateway
+        run: curl -fsS -m 60 https://mcp-reddit-gateway.onrender.com/healthz || true
