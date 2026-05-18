@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: mcp-reddit-gateway
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      # Optional: raise Reddit rate limits. Create a "script" app at
+      # https://www.reddit.com/prefs/apps then set these in the Render
+      # dashboard (Environment tab). Leave unset for anonymous fetch.
+      - key: REDDIT_CLIENT_ID
+        sync: false
+      - key: REDDIT_CLIENT_SECRET
+        sync: false
