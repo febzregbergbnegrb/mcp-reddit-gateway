@@ -1,5 +1,5 @@
-# Wraps the stdio MCP server `mcp-reddit` as a public HTTP/SSE endpoint
-# so it can be added as a Custom Connector on claude.ai (web/mobile).
+# Wraps the stdio MCP server `mcp-reddit` as a public Streamable HTTP
+# endpoint so it can be added as a Custom Connector on claude.ai.
 FROM node:20-slim
 
 # git is required: uvx clones mcp-reddit from GitHub. curl installs uv.
@@ -24,5 +24,7 @@ RUN timeout 600 sh -c "echo '' | uvx --from git+https://github.com/adhikasp/mcp-
 ENV PORT=8000
 EXPOSE 8000
 
-# SSE endpoint served at /sse (POST callbacks at /message), health at /healthz.
-CMD ["sh", "-c", "supergateway --stdio 'uvx --from git+https://github.com/adhikasp/mcp-reddit.git mcp-reddit' --port ${PORT:-8000} --cors --healthEndpoint /healthz"]
+# Streamable HTTP endpoint served at /mcp (what claude.ai connectors expect),
+# health at /healthz. --stateful keeps the MCP session across the multi-request
+# initialize -> tools/list -> tools/call handshake.
+CMD ["sh", "-c", "supergateway --stdio 'uvx --from git+https://github.com/adhikasp/mcp-reddit.git mcp-reddit' --outputTransport streamableHttp --stateful --streamableHttpPath /mcp --port ${PORT:-8000} --cors --healthEndpoint /healthz"]
